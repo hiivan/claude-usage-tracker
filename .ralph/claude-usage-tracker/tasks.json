@@ -88,13 +88,13 @@
       "id": "T8",
       "title": "Implement dashboard panel (src/dashboardPanel.ts)",
       "description": "Create `src/dashboardPanel.ts` implementing a singleton VS Code Webview panel.\n\nImports: `vscode`, `fs`, `path`, `UsageEntry` from `./types`.\n\n```typescript\nexport class DashboardPanel {\n  static currentPanel: DashboardPanel | undefined;\n  private readonly panel: vscode.WebviewPanel;\n  private disposables: vscode.Disposable[] = [];\n\n  static createOrShow(extensionUri: vscode.Uri, entries: UsageEntry[]): void\n  // If currentPanel exists, reveal it; otherwise create a new WebviewPanel:\n  // vscode.window.createWebviewPanel('claudeUsage', 'Claude Usage Dashboard', vscode.ViewColumn.One, { enableScripts: true })\n  // Set panel.webview.html from the template (see below)\n  // Send data immediately after creation\n\n  sendData(entries: UsageEntry[]): void\n  // panel.webview.postMessage({ type: 'update', entries })\n\n  private getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri): string\n  // Read webview/index.html as UTF-8 string using fs.readFileSync\n  // Create webviewUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'dist', 'webview.js'))\n  // Replace '{{WEBVIEW_JS_URI}}' with webviewUri.toString()\n  // Return the modified HTML string\n\n  dispose(): void\n  // panel.dispose(), clear disposables\n}\n```\n\nOn panel disposal (`panel.onDidDispose`), set `DashboardPanel.currentPanel = undefined` and call `this.dispose()`.",
-      "status": "pending",
+      "status": "completed",
       "dependencies": [
         "T3",
         "T6",
         "T7"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "max_attempts": 3,
       "blocked": false
     },

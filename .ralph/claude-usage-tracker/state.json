@@ -54,5 +54,13 @@
     "summary": "Created webview/App.tsx with full React dashboard: inline UsageEntry interface and pricing logic, tab navigation (today/week/month/all), summary cards, HTML/CSS bar chart (hourly for today, daily for other tabs), model breakdown table, and project breakdown table. Mounts via createRoot.",
     "files_modified": ["webview/App.tsx"],
     "obstacles": []
+  },
+  {
+    "iteration": 8,
+    "task_id": "T8",
+    "status": "completed",
+    "summary": "Created src/dashboardPanel.ts implementing the singleton DashboardPanel class with createOrShow (reveals existing or creates new WebviewPanel), sendData (postMessage to webview), getWebviewContent (reads webview/index.html and replaces {{WEBVIEW_JS_URI}} placeholder), and dispose methods.",
+    "files_modified": ["src/dashboardPanel.ts"],
+    "obstacles": []
   }
 ]
