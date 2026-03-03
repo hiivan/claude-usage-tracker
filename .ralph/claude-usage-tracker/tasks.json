@@ -40,11 +40,11 @@
       "id": "T4",
       "title": "Implement JSONL data parser (src/usageParser.ts)",
       "description": "Create `src/usageParser.ts` that reads all Claude Code session files and returns an array of `UsageEntry`.\n\nImports: `UsageEntry` from `./types`, `fs`, `path`, `os` from Node.\n\nLogic for `export function parseUsageData(): UsageEntry[]`:\n1. Resolve base dir: `path.join(os.homedir(), '.claude', 'projects')`\n2. Recursively find all `*.jsonl` files using a helper `walkDir(dir: string): string[]` that uses `fs.readdirSync` + `fs.statSync` to recurse\n3. For each file, read with `fs.readFileSync(file, 'utf8')`, split on `'\\n'`, skip empty lines\n4. For each line, wrap `JSON.parse` in try/catch; skip malformed lines silently\n5. Accept only entries where `entry.type === 'assistant'` and `entry.message?.usage` is truthy\n6. Map to `UsageEntry`:\n   - `timestamp`: `entry.timestamp`\n   - `sessionId`: `entry.sessionId`\n   - `cwd`: `entry.cwd`\n   - `model`: `entry.message.model ?? 'unknown'`\n   - `inputTokens`: `entry.message.usage.input_tokens ?? 0`\n   - `outputTokens`: `entry.message.usage.output_tokens ?? 0`\n   - `cacheCreationTokens`: `entry.message.usage.cache_creation_input_tokens ?? 0`\n   - `cacheReadTokens`: `entry.message.usage.cache_read_input_tokens ?? 0`\n7. Return the flat array of all collected entries\n\nNote: If `~/.claude/projects/` does not exist, return `[]` without throwing.",
-      "status": "pending",
+      "status": "completed",
       "dependencies": [
         "T3"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "max_attempts": 3,
       "blocked": false
     },

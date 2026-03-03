@@ -22,5 +22,13 @@
     "summary": "Created src/types.ts exporting the UsageEntry interface with all required fields (timestamp, sessionId, cwd, model, inputTokens, outputTokens, cacheCreationTokens, cacheReadTokens). No logic, just the interface.",
     "files_modified": ["src/types.ts"],
     "obstacles": []
+  },
+  {
+    "iteration": 4,
+    "task_id": "T4",
+    "status": "completed",
+    "summary": "Created src/usageParser.ts with walkDir helper (recursive JSONL file finder using readdirSync/withFileTypes) and parseUsageData function that reads ~/.claude/projects/, parses assistant entries, and returns a flat UsageEntry array. Returns [] if base dir doesn't exist.",
+    "files_modified": ["src/usageParser.ts"],
+    "obstacles": []
   }
 ]
