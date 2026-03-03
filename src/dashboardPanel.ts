@@ -21,10 +21,10 @@ export class DashboardPanel {
     );
   }
 
-  static createOrShow(extensionUri: vscode.Uri, entries: UsageEntry[]): void {
+  static createOrShow(extensionUri: vscode.Uri, entries: UsageEntry[], billingMode: 'api' | 'pro' | 'max' = 'api'): void {
     if (DashboardPanel.currentPanel) {
       DashboardPanel.currentPanel.panel.reveal(vscode.ViewColumn.One);
-      DashboardPanel.currentPanel.sendData(entries);
+      DashboardPanel.currentPanel.sendData(entries, billingMode);
       return;
     }
 
@@ -36,11 +36,11 @@ export class DashboardPanel {
     );
 
     DashboardPanel.currentPanel = new DashboardPanel(panel, extensionUri);
-    DashboardPanel.currentPanel.sendData(entries);
+    DashboardPanel.currentPanel.sendData(entries, billingMode);
   }
 
-  sendData(entries: UsageEntry[]): void {
-    this.panel.webview.postMessage({ type: 'update', entries });
+  sendData(entries: UsageEntry[], billingMode: 'api' | 'pro' | 'max' = 'api'): void {
+    this.panel.webview.postMessage({ type: 'update', entries, billingMode });
   }
 
   private getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri): string {

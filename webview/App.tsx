@@ -49,6 +49,7 @@ function basename(p: string): string {
 }
 
 type Tab = 'today' | 'week' | 'month' | 'all';
+type BillingMode = 'api' | 'pro' | 'max';
 
 function filterEntries(entries: UsageEntry[], tab: Tab): UsageEntry[] {
   const now = new Date();
@@ -178,19 +179,31 @@ function SummaryCard({ title, value }: SummaryCardProps) {
   );
 }
 
+const PLAN_LABELS: Record<BillingMode, string | null> = {
+  api: null,
+  pro: 'Claude Pro ($20/mo)',
+  max: 'Claude Max ($100/mo)',
+};
+
 function App() {
   const [entries, setEntries] = useState<UsageEntry[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>('today');
+  const [billingMode, setBillingMode] = useState<BillingMode>('api');
 
   useEffect(() => {
     function handler(event: MessageEvent) {
       if (event.data?.type === 'update') {
         setEntries(event.data.entries as UsageEntry[]);
+        if (event.data.billingMode) {
+          setBillingMode(event.data.billingMode as BillingMode);
+        }
       }
     }
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
   }, []);
+
+  const showCost = billingMode === 'api';
 
   const filtered = filterEntries(entries, activeTab);
 
@@ -288,12 +301,33 @@ function App() {
         ))}
       </div>
 
+      {/* Plan badge for subscription users */}
+      {!showCost && PLAN_LABELS[billingMode] && (
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px',
+          marginBottom: '16px',
+          padding: '4px 12px',
+          borderRadius: '20px',
+          fontSize: '12px',
+          fontWeight: 600,
+          background: 'var(--vscode-charts-blue, #007acc)',
+          color: '#fff',
+        }}>
+          ✦ {PLAN_LABELS[billingMode]}
+        </div>
+      )}
+
       {/* Summary cards */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
         <SummaryCard title="Total Input Tokens" value={formatTokens(totalInput)} />
         <SummaryCard title="Total Output Tokens" value={formatTokens(totalOutput)} />
         <SummaryCard title="Total Cache Tokens" value={formatTokens(totalCache)} />
-        <SummaryCard title="Estimated Cost" value={formatCost(totalCost)} />
+        {showCost
+          ? <SummaryCard title="Estimated Cost" value={formatCost(totalCost)} />
+          : <SummaryCard title="API Equivalent Cost" value={`~${formatCost(totalCost)}`} />
+        }
       </div>
 
       {/* Bar chart */}
@@ -315,7 +349,7 @@ function App() {
                 <th style={thStyle}>Sessions</th>
                 <th style={thStyle}>Input Tokens</th>
                 <th style={thStyle}>Output Tokens</th>
-                <th style={thStyle}>Est. Cost</th>
+                <th style={thStyle}>{showCost ? 'Est. Cost' : 'API Equiv. Cost'}</th>
               </tr>
             </thead>
             <tbody>
@@ -341,6 +375,13 @@ function App() {
         </div>
       </div>
 
+      {/* Subscription footnote under model table */}
+      {!showCost && (
+        <div style={{ fontSize: '11px', color: 'var(--vscode-descriptionForeground, #888)', marginTop: '-16px', marginBottom: '24px' }}>
+          * API Equiv. Cost is for reference only — you are on a flat-rate subscription plan.
+        </div>
+      )}
+
       {/* Project breakdown */}
       <div style={{ marginBottom: '24px' }}>
         <h3 style={{ margin: '0 0 8px', fontSize: '14px', fontWeight: 600 }}>Project Breakdown</h3>
@@ -351,7 +392,7 @@ function App() {
                 <th style={thStyle}>Project</th>
                 <th style={thStyle}>Sessions</th>
                 <th style={thStyle}>Tokens</th>
-                <th style={thStyle}>Est. Cost</th>
+                <th style={thStyle}>{showCost ? 'Est. Cost' : 'API Equiv. Cost'}</th>
               </tr>
             </thead>
             <tbody>

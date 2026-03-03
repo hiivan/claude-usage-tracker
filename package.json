@@ -14,7 +14,23 @@
         "command": "claudeUsage.openDashboard",
         "title": "Claude Usage: Open Dashboard"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Claude Usage Tracker",
+      "properties": {
+        "claudeUsage.billingMode": {
+          "type": "string",
+          "enum": ["api", "pro", "max"],
+          "enumDescriptions": [
+            "Pay-per-token via API key — shows estimated USD cost",
+            "Claude Pro subscription ($20/mo) — shows token usage only, no cost estimates",
+            "Claude Max subscription ($100/mo) — shows token usage only, no cost estimates"
+          ],
+          "default": "api",
+          "description": "Your Claude billing mode. Use 'pro' or 'max' if you are on a subscription plan rather than paying per token."
+        }
+      }
+    }
   },
   "scripts": {
     "build": "node esbuild.mjs",
