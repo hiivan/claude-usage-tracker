@@ -1,27 +1,52 @@
 # Test Results
 
-## Summary
-Overall: NO TESTS FOUND
+## Build Status
 
-## Details
-No test infrastructure was found in the repository. The following was checked:
-- No `jest.config.*`, `vitest.config.*`, `pytest.ini`, or other test configuration files
-- No `tests/`, `__tests__/`, or other test directories
-- No `*.test.ts`, `*.test.tsx`, `*.spec.ts`, `test_*.py`, or `*_test.py` files
-- No test scripts defined in `package.json`
-- No test runner dependencies (jest, vitest, pytest, etc.) in package.json
+### Build Command
+```
+npm install && npm run build
+```
 
-## Project Status
-The project has implemented the following modules:
-- `src/types.ts` — Shared TypeScript interfaces
-- `src/costCalculator.ts` — Cost calculation based on model and token counts
-- `src/usageParser.ts` — JSONL parser for Claude Code session files
-- `src/dashboardPanel.ts` — VS Code panel management
-- `webview/App.tsx` — React dashboard UI
-- `webview/index.html` — Webview HTML template
-- `esbuild.mjs` — Build system configuration
+### Build Output
 
-However, no test cases have been created for any of these modules.
+Installation completed successfully.
 
-## Recommendation
-To enable testing, configure a test runner (e.g., Jest with TypeScript support) and create test files for the implemented modules.
+Build failed with the following error:
+
+```
+✘ [ERROR] Could not resolve "src/extension.ts"
+
+/Users/ivan/Downloads/claude_usage_extension/node_modules/esbuild/lib/main.js:1467
+  let error = new Error(text);
+              ^
+
+Error: Build failed with 1 error:
+error: Could not resolve "src/extension.ts"
+    at failureErrorWithLog (/Users/ivan/Downloads/claude_usage_extension/node_modules/esbuild/lib/main.js:1467:15)
+    at /Users/ivan/Downloads/claude_usage_extension/node_modules/esbuild/lib/main.js:926:25
+    at /Users/ivan/Downloads/claude_usage_extension/node_modules/esbuild/lib/main.js:878:52
+    at buildResponseToResult (/Users/ivan/Downloads/claude_usage_extension/node_modules/esbuild/lib/main.js:924:7)
+    at /Users/ivan/Downloads/claude_usage_extension/node_modules/esbuild/lib/main.js:936:9
+    at new Promise (<anonymous>)
+    at requestCallbacks.on-end (/Users/ivan/Downloads/claude_usage_extension/node_modules/esbuild/lib/main.js:878:52)
+```
+
+### Issue
+
+The esbuild.mjs configuration expects an entry point at `src/extension.ts`, but this file does not exist in the repository. All other source files are present:
+- src/types.ts
+- src/usageParser.ts
+- src/costCalculator.ts
+- src/dashboardPanel.ts
+- src/statusBar.ts
+- webview/App.tsx
+- webview/index.html
+
+### Summary
+
+**Overall: FAILED**
+
+0 passed, 1 failed, 0 errors
+
+**Failure:**
+- [Build] — CompilationError: Could not resolve "src/extension.ts" (entry point file is missing from the project)

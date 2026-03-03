@@ -102,12 +102,12 @@
       "id": "T9",
       "title": "Implement status bar item (src/statusBar.ts)",
       "description": "Create `src/statusBar.ts` wrapping a VS Code status bar item.\n\nImports: `vscode`, `UsageEntry` from `./types`, `calculateCost`, `formatCost`, `formatTokens` from `./costCalculator`.\n\n```typescript\nexport class UsageStatusBar {\n  private statusBarItem: vscode.StatusBarItem;\n\n  constructor() {\n    this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);\n    this.statusBarItem.command = 'claudeUsage.openDashboard';\n    this.statusBarItem.tooltip = 'Claude Usage Today \u2014 Click to open dashboard';\n  }\n\n  update(entries: UsageEntry[]): void {\n    // Filter to today's entries: new Date(e.timestamp).toDateString() === new Date().toDateString()\n    // Sum inputTokens + outputTokens + cacheCreationTokens + cacheReadTokens for total token display\n    // Sum calculateCost(e) for all today's entries for total cost\n    // Set text: `$(graph) Claude: ${formatCost(totalCost)} \u00b7 ${formatTokens(totalTokens)} tokens`\n  }\n\n  show(): void { this.statusBarItem.show(); }\n  dispose(): void { this.statusBarItem.dispose(); }\n}\n```",
-      "status": "pending",
+      "status": "completed",
       "dependencies": [
         "T3",
         "T5"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "max_attempts": 3,
       "blocked": false
     },

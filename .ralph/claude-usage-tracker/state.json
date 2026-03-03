@@ -62,5 +62,13 @@
     "summary": "Created src/dashboardPanel.ts implementing the singleton DashboardPanel class with createOrShow (reveals existing or creates new WebviewPanel), sendData (postMessage to webview), getWebviewContent (reads webview/index.html and replaces {{WEBVIEW_JS_URI}} placeholder), and dispose methods.",
     "files_modified": ["src/dashboardPanel.ts"],
     "obstacles": []
+  },
+  {
+    "iteration": 9,
+    "task_id": "T9",
+    "status": "completed",
+    "summary": "Created src/statusBar.ts with UsageStatusBar class: constructor sets up StatusBarItem (left-aligned, priority 100, openDashboard command, tooltip), update() filters today's entries and sets text with formatted cost and token count, plus show() and dispose() methods.",
+    "files_modified": ["src/statusBar.ts"],
+    "obstacles": []
   }
 ]
