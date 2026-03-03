@@ -46,5 +46,13 @@
     "summary": "Created webview/index.html with the HTML scaffold using {{WEBVIEW_JS_URI}} placeholder, VS Code CSS variables for theming, and a #root div for React mounting.",
     "files_modified": ["webview/index.html"],
     "obstacles": []
+  },
+  {
+    "iteration": 7,
+    "task_id": "T7",
+    "status": "completed",
+    "summary": "Created webview/App.tsx with full React dashboard: inline UsageEntry interface and pricing logic, tab navigation (today/week/month/all), summary cards, HTML/CSS bar chart (hourly for today, daily for other tabs), model breakdown table, and project breakdown table. Mounts via createRoot.",
+    "files_modified": ["webview/App.tsx"],
+    "obstacles": []
   }
 ]

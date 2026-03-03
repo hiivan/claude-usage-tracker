@@ -76,11 +76,11 @@
       "id": "T7",
       "title": "Implement React webview app (webview/App.tsx)",
       "description": "Create `webview/App.tsx` \u2014 the React app bundled into `dist/webview.js` and rendered inside the VS Code webview panel. This file runs in a browser sandbox and must NOT import from `src/`.\n\nLocal interface (declare inline, not imported):\n```typescript\ninterface UsageEntry { timestamp: string; sessionId: string; cwd: string; model: string; inputTokens: number; outputTokens: number; cacheCreationTokens: number; cacheReadTokens: number; }\n```\n\nCost calculation: inline pricing logic mirroring `costCalculator.ts` (haiku/opus/default tiers).\n\nApp structure:\n1. State: `entries: UsageEntry[]` (starts empty), `activeTab: 'today'|'week'|'month'|'all'`\n2. `useEffect` on mount: `window.addEventListener('message', handler)` where handler sets entries when `event.data.type === 'update'`\n3. Tab filtering:\n   - Today: entries where `new Date(e.timestamp).toDateString() === new Date().toDateString()`\n   - This Week: entries from last 7 days\n   - This Month: entries from last 30 days\n   - All Time: all entries\n4. Summary cards: 4 cards \u2014 Total Input Tokens, Total Output Tokens, Total Cache Tokens (cacheCreationTokens + cacheReadTokens), Estimated Cost \u2014 all using `formatTokens` and `formatCost` helpers\n5. Bar chart (HTML/CSS only, no library):\n   - Today tab: 24 bars (hours 0\u201323 of today); each bar's height proportional to tokens in that hour\n   - Other tabs: daily bars; for week/month/all show days sorted ascending\n   - Bar height uses `calc(Xpx)` or percentage based on max value in the set\n   - Label each bar with its formatted token count\n6. Model breakdown table: columns Model | Sessions (unique sessionId count) | Input Tokens | Output Tokens | Est. Cost\n7. Project breakdown table: columns Project (`path.basename(cwd)` logic inline) | Sessions | Tokens | Est. Cost\n\nMount: `import { createRoot } from 'react-dom/client'; createRoot(document.getElementById('root')!).render(<App />);`",
-      "status": "pending",
+      "status": "completed",
       "dependencies": [
         "T1"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "max_attempts": 3,
       "blocked": false
     },
