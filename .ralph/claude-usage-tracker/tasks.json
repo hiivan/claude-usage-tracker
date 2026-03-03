@@ -5,30 +5,34 @@
     {
       "id": "T1",
       "title": "Create project scaffold and config files",
-      "description": "Create all project configuration files from scratch — no source files exist yet.\n\n1. `package.json`:\n   - `\"name\": \"claude-usage-tracker\"`, `\"displayName\": \"Claude Usage Tracker\"`, `\"description\": \"Track your Claude Code token usage and cost\"`, `\"version\": \"0.0.1\"`\n   - `\"engines\": { \"vscode\": \"^1.85.0\" }`, `\"main\": \"./dist/extension.js\"`, `\"activationEvents\": [\"*\"]`\n   - `\"contributes\": { \"commands\": [{ \"command\": \"claudeUsage.openDashboard\", \"title\": \"Claude Usage: Open Dashboard\" }] }`\n   - `\"scripts\": { \"build\": \"node esbuild.mjs\", \"watch\": \"node esbuild.mjs --watch\", \"package\": \"vsce package\" }`\n   - `\"devDependencies\": { \"esbuild\": \"latest\", \"typescript\": \"latest\", \"@types/vscode\": \"^1.85.0\", \"@types/react\": \"^18\", \"@types/react-dom\": \"^18\" }`\n   - `\"dependencies\": { \"react\": \"^18\", \"react-dom\": \"^18\" }`\n\n2. `tsconfig.json`:\n   ```json\n   { \"compilerOptions\": { \"target\": \"ES2020\", \"module\": \"commonjs\", \"jsx\": \"react\", \"strict\": true, \"esModuleInterop\": true, \"outDir\": \"dist\" }, \"include\": [\"src\", \"webview\"] }\n   ```\n\n3. `.gitignore`: include `node_modules/`, `dist/`, `*.vsix`\n\n4. `.vscodeignore`: include `src/**`, `webview/**`, `node_modules/**`, `.ralph/**`, `.claude/**`, `esbuild.mjs`, `tsconfig.json`",
-      "status": "pending",
+      "description": "Create all project configuration files from scratch \u2014 no source files exist yet.\n\n1. `package.json`:\n   - `\"name\": \"claude-usage-tracker\"`, `\"displayName\": \"Claude Usage Tracker\"`, `\"description\": \"Track your Claude Code token usage and cost\"`, `\"version\": \"0.0.1\"`\n   - `\"engines\": { \"vscode\": \"^1.85.0\" }`, `\"main\": \"./dist/extension.js\"`, `\"activationEvents\": [\"*\"]`\n   - `\"contributes\": { \"commands\": [{ \"command\": \"claudeUsage.openDashboard\", \"title\": \"Claude Usage: Open Dashboard\" }] }`\n   - `\"scripts\": { \"build\": \"node esbuild.mjs\", \"watch\": \"node esbuild.mjs --watch\", \"package\": \"vsce package\" }`\n   - `\"devDependencies\": { \"esbuild\": \"latest\", \"typescript\": \"latest\", \"@types/vscode\": \"^1.85.0\", \"@types/react\": \"^18\", \"@types/react-dom\": \"^18\" }`\n   - `\"dependencies\": { \"react\": \"^18\", \"react-dom\": \"^18\" }`\n\n2. `tsconfig.json`:\n   ```json\n   { \"compilerOptions\": { \"target\": \"ES2020\", \"module\": \"commonjs\", \"jsx\": \"react\", \"strict\": true, \"esModuleInterop\": true, \"outDir\": \"dist\" }, \"include\": [\"src\", \"webview\"] }\n   ```\n\n3. `.gitignore`: include `node_modules/`, `dist/`, `*.vsix`\n\n4. `.vscodeignore`: include `src/**`, `webview/**`, `node_modules/**`, `.ralph/**`, `.claude/**`, `esbuild.mjs`, `tsconfig.json`",
+      "status": "completed",
       "dependencies": [],
-      "attempts": 0,
+      "attempts": 1,
       "max_attempts": 3,
       "blocked": false
     },
     {
       "id": "T2",
       "title": "Create esbuild build system (esbuild.mjs)",
-      "description": "Create `esbuild.mjs` at the project root that performs two independent builds:\n\n1. Extension bundle: entry `src/extension.ts` → output `dist/extension.js`\n   - format: `cjs`, platform: `node`, external: `['vscode']`, bundle: true, sourcemap: true\n\n2. Webview bundle: entry `webview/App.tsx` → output `dist/webview.js`\n   - format: `iife`, platform: `browser`, bundle: true, sourcemap: true\n\nSupport `--watch` mode: if `process.argv.includes('--watch')`, call `context.watch()` on both esbuild contexts instead of a one-shot `build()`. Use the esbuild context API (`esbuild.context(...)`) for both cases so watch mode works correctly.\n\nThis file is required before any TypeScript compilation or testing.",
-      "status": "pending",
-      "dependencies": ["T1"],
-      "attempts": 0,
+      "description": "Create `esbuild.mjs` at the project root that performs two independent builds:\n\n1. Extension bundle: entry `src/extension.ts` \u2192 output `dist/extension.js`\n   - format: `cjs`, platform: `node`, external: `['vscode']`, bundle: true, sourcemap: true\n\n2. Webview bundle: entry `webview/App.tsx` \u2192 output `dist/webview.js`\n   - format: `iife`, platform: `browser`, bundle: true, sourcemap: true\n\nSupport `--watch` mode: if `process.argv.includes('--watch')`, call `context.watch()` on both esbuild contexts instead of a one-shot `build()`. Use the esbuild context API (`esbuild.context(...)`) for both cases so watch mode works correctly.\n\nThis file is required before any TypeScript compilation or testing.",
+      "status": "completed",
+      "dependencies": [
+        "T1"
+      ],
+      "attempts": 1,
       "max_attempts": 3,
       "blocked": false
     },
     {
       "id": "T3",
       "title": "Create shared TypeScript types (src/types.ts)",
-      "description": "Create `src/types.ts` exporting the `UsageEntry` interface used by all extension-side modules:\n\n```typescript\nexport interface UsageEntry {\n  timestamp: string;             // ISO string from entry.timestamp\n  sessionId: string;             // entry.sessionId (UUID)\n  cwd: string;                   // entry.cwd (full path, e.g. \"/Users/ivan/my-project\")\n  model: string;                 // entry.message.model\n  inputTokens: number;           // entry.message.usage.input_tokens\n  outputTokens: number;          // entry.message.usage.output_tokens\n  cacheCreationTokens: number;   // entry.message.usage.cache_creation_input_tokens ?? 0\n  cacheReadTokens: number;       // entry.message.usage.cache_read_input_tokens ?? 0\n}\n```\n\nThis file is imported by `usageParser.ts`, `costCalculator.ts`, `statusBar.ts`, and `dashboardPanel.ts`. Keep it to just this interface — no logic.",
-      "status": "pending",
-      "dependencies": ["T1"],
-      "attempts": 0,
+      "description": "Create `src/types.ts` exporting the `UsageEntry` interface used by all extension-side modules:\n\n```typescript\nexport interface UsageEntry {\n  timestamp: string;             // ISO string from entry.timestamp\n  sessionId: string;             // entry.sessionId (UUID)\n  cwd: string;                   // entry.cwd (full path, e.g. \"/Users/ivan/my-project\")\n  model: string;                 // entry.message.model\n  inputTokens: number;           // entry.message.usage.input_tokens\n  outputTokens: number;          // entry.message.usage.output_tokens\n  cacheCreationTokens: number;   // entry.message.usage.cache_creation_input_tokens ?? 0\n  cacheReadTokens: number;       // entry.message.usage.cache_read_input_tokens ?? 0\n}\n```\n\nThis file is imported by `usageParser.ts`, `costCalculator.ts`, `statusBar.ts`, and `dashboardPanel.ts`. Keep it to just this interface \u2014 no logic.",
+      "status": "completed",
+      "dependencies": [
+        "T1"
+      ],
+      "attempts": 1,
       "max_attempts": 3,
       "blocked": false
     },
@@ -36,39 +40,47 @@
       "id": "T4",
       "title": "Implement JSONL data parser (src/usageParser.ts)",
       "description": "Create `src/usageParser.ts` that reads all Claude Code session files and returns an array of `UsageEntry`.\n\nImports: `UsageEntry` from `./types`, `fs`, `path`, `os` from Node.\n\nLogic for `export function parseUsageData(): UsageEntry[]`:\n1. Resolve base dir: `path.join(os.homedir(), '.claude', 'projects')`\n2. Recursively find all `*.jsonl` files using a helper `walkDir(dir: string): string[]` that uses `fs.readdirSync` + `fs.statSync` to recurse\n3. For each file, read with `fs.readFileSync(file, 'utf8')`, split on `'\\n'`, skip empty lines\n4. For each line, wrap `JSON.parse` in try/catch; skip malformed lines silently\n5. Accept only entries where `entry.type === 'assistant'` and `entry.message?.usage` is truthy\n6. Map to `UsageEntry`:\n   - `timestamp`: `entry.timestamp`\n   - `sessionId`: `entry.sessionId`\n   - `cwd`: `entry.cwd`\n   - `model`: `entry.message.model ?? 'unknown'`\n   - `inputTokens`: `entry.message.usage.input_tokens ?? 0`\n   - `outputTokens`: `entry.message.usage.output_tokens ?? 0`\n   - `cacheCreationTokens`: `entry.message.usage.cache_creation_input_tokens ?? 0`\n   - `cacheReadTokens`: `entry.message.usage.cache_read_input_tokens ?? 0`\n7. Return the flat array of all collected entries\n\nNote: If `~/.claude/projects/` does not exist, return `[]` without throwing.",
-      "status": "pending",
-      "dependencies": ["T3"],
-      "attempts": 0,
+      "status": "completed",
+      "dependencies": [
+        "T3"
+      ],
+      "attempts": 1,
       "max_attempts": 3,
       "blocked": false
     },
     {
       "id": "T5",
       "title": "Implement cost calculator (src/costCalculator.ts)",
-      "description": "Create `src/costCalculator.ts` with pricing logic and formatting utilities.\n\nImports: `UsageEntry` from `./types`.\n\nPer-million-token pricing tiers (check model string with `includes`):\n- Model contains `'haiku'`: input $0.80, output $4.00, cache_read $0.08, cache_write $1.00\n- Model contains `'opus'`: input $15.00, output $75.00, cache_read $1.50, cache_write $18.75\n- Default (sonnet / unknown): input $3.00, output $15.00, cache_read $0.30, cache_write $3.75\n\nExport the following functions:\n\n```typescript\nexport function calculateCost(entry: UsageEntry): number\n// Returns USD cost: sum of (tokens / 1_000_000) * rate for each token type\n// cache_creation_input_tokens uses cache_write rate\n// cache_read_input_tokens uses cache_read rate\n\nexport function formatCost(usd: number): string\n// Returns \"$X.XX\" — always 2 decimal places minimum\n\nexport function formatTokens(count: number): string\n// < 1000: return count as string\n// >= 1000 and < 1_000_000: return Math.round(count/1000) + 'k'\n// >= 1_000_000: return (count/1_000_000).toFixed(1) + 'M'\n```",
-      "status": "pending",
-      "dependencies": ["T3"],
-      "attempts": 0,
+      "description": "Create `src/costCalculator.ts` with pricing logic and formatting utilities.\n\nImports: `UsageEntry` from `./types`.\n\nPer-million-token pricing tiers (check model string with `includes`):\n- Model contains `'haiku'`: input $0.80, output $4.00, cache_read $0.08, cache_write $1.00\n- Model contains `'opus'`: input $15.00, output $75.00, cache_read $1.50, cache_write $18.75\n- Default (sonnet / unknown): input $3.00, output $15.00, cache_read $0.30, cache_write $3.75\n\nExport the following functions:\n\n```typescript\nexport function calculateCost(entry: UsageEntry): number\n// Returns USD cost: sum of (tokens / 1_000_000) * rate for each token type\n// cache_creation_input_tokens uses cache_write rate\n// cache_read_input_tokens uses cache_read rate\n\nexport function formatCost(usd: number): string\n// Returns \"$X.XX\" \u2014 always 2 decimal places minimum\n\nexport function formatTokens(count: number): string\n// < 1000: return count as string\n// >= 1000 and < 1_000_000: return Math.round(count/1000) + 'k'\n// >= 1_000_000: return (count/1_000_000).toFixed(1) + 'M'\n```",
+      "status": "completed",
+      "dependencies": [
+        "T3"
+      ],
+      "attempts": 1,
       "max_attempts": 3,
       "blocked": false
     },
     {
       "id": "T6",
       "title": "Create webview HTML template (webview/index.html)",
-      "description": "Create `webview/index.html` — the HTML scaffold loaded by `dashboardPanel.ts`. The file uses a placeholder `{{WEBVIEW_JS_URI}}` that `dashboardPanel.ts` replaces at runtime with a VS Code webview-safe URI via `panel.webview.asWebviewUri`.\n\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Claude Usage Dashboard</title>\n  <style>\n    body { margin: 0; font-family: var(--vscode-font-family, sans-serif); background: var(--vscode-editor-background); color: var(--vscode-editor-foreground); }\n  </style>\n</head>\n<body>\n  <div id=\"root\"></div>\n  <script src=\"{{WEBVIEW_JS_URI}}\"></script>\n</body>\n</html>\n```\n\nThe inline style uses VS Code CSS variables so the dashboard matches the user's theme automatically.",
-      "status": "pending",
-      "dependencies": ["T1"],
-      "attempts": 0,
+      "description": "Create `webview/index.html` \u2014 the HTML scaffold loaded by `dashboardPanel.ts`. The file uses a placeholder `{{WEBVIEW_JS_URI}}` that `dashboardPanel.ts` replaces at runtime with a VS Code webview-safe URI via `panel.webview.asWebviewUri`.\n\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Claude Usage Dashboard</title>\n  <style>\n    body { margin: 0; font-family: var(--vscode-font-family, sans-serif); background: var(--vscode-editor-background); color: var(--vscode-editor-foreground); }\n  </style>\n</head>\n<body>\n  <div id=\"root\"></div>\n  <script src=\"{{WEBVIEW_JS_URI}}\"></script>\n</body>\n</html>\n```\n\nThe inline style uses VS Code CSS variables so the dashboard matches the user's theme automatically.",
+      "status": "completed",
+      "dependencies": [
+        "T1"
+      ],
+      "attempts": 1,
       "max_attempts": 3,
       "blocked": false
     },
     {
       "id": "T7",
       "title": "Implement React webview app (webview/App.tsx)",
-      "description": "Create `webview/App.tsx` — the React app bundled into `dist/webview.js` and rendered inside the VS Code webview panel. This file runs in a browser sandbox and must NOT import from `src/`.\n\nLocal interface (declare inline, not imported):\n```typescript\ninterface UsageEntry { timestamp: string; sessionId: string; cwd: string; model: string; inputTokens: number; outputTokens: number; cacheCreationTokens: number; cacheReadTokens: number; }\n```\n\nCost calculation: inline pricing logic mirroring `costCalculator.ts` (haiku/opus/default tiers).\n\nApp structure:\n1. State: `entries: UsageEntry[]` (starts empty), `activeTab: 'today'|'week'|'month'|'all'`\n2. `useEffect` on mount: `window.addEventListener('message', handler)` where handler sets entries when `event.data.type === 'update'`\n3. Tab filtering:\n   - Today: entries where `new Date(e.timestamp).toDateString() === new Date().toDateString()`\n   - This Week: entries from last 7 days\n   - This Month: entries from last 30 days\n   - All Time: all entries\n4. Summary cards: 4 cards — Total Input Tokens, Total Output Tokens, Total Cache Tokens (cacheCreationTokens + cacheReadTokens), Estimated Cost — all using `formatTokens` and `formatCost` helpers\n5. Bar chart (HTML/CSS only, no library):\n   - Today tab: 24 bars (hours 0–23 of today); each bar's height proportional to tokens in that hour\n   - Other tabs: daily bars; for week/month/all show days sorted ascending\n   - Bar height uses `calc(Xpx)` or percentage based on max value in the set\n   - Label each bar with its formatted token count\n6. Model breakdown table: columns Model | Sessions (unique sessionId count) | Input Tokens | Output Tokens | Est. Cost\n7. Project breakdown table: columns Project (`path.basename(cwd)` logic inline) | Sessions | Tokens | Est. Cost\n\nMount: `import { createRoot } from 'react-dom/client'; createRoot(document.getElementById('root')!).render(<App />);`",
-      "status": "pending",
-      "dependencies": ["T1"],
-      "attempts": 0,
+      "description": "Create `webview/App.tsx` \u2014 the React app bundled into `dist/webview.js` and rendered inside the VS Code webview panel. This file runs in a browser sandbox and must NOT import from `src/`.\n\nLocal interface (declare inline, not imported):\n```typescript\ninterface UsageEntry { timestamp: string; sessionId: string; cwd: string; model: string; inputTokens: number; outputTokens: number; cacheCreationTokens: number; cacheReadTokens: number; }\n```\n\nCost calculation: inline pricing logic mirroring `costCalculator.ts` (haiku/opus/default tiers).\n\nApp structure:\n1. State: `entries: UsageEntry[]` (starts empty), `activeTab: 'today'|'week'|'month'|'all'`\n2. `useEffect` on mount: `window.addEventListener('message', handler)` where handler sets entries when `event.data.type === 'update'`\n3. Tab filtering:\n   - Today: entries where `new Date(e.timestamp).toDateString() === new Date().toDateString()`\n   - This Week: entries from last 7 days\n   - This Month: entries from last 30 days\n   - All Time: all entries\n4. Summary cards: 4 cards \u2014 Total Input Tokens, Total Output Tokens, Total Cache Tokens (cacheCreationTokens + cacheReadTokens), Estimated Cost \u2014 all using `formatTokens` and `formatCost` helpers\n5. Bar chart (HTML/CSS only, no library):\n   - Today tab: 24 bars (hours 0\u201323 of today); each bar's height proportional to tokens in that hour\n   - Other tabs: daily bars; for week/month/all show days sorted ascending\n   - Bar height uses `calc(Xpx)` or percentage based on max value in the set\n   - Label each bar with its formatted token count\n6. Model breakdown table: columns Model | Sessions (unique sessionId count) | Input Tokens | Output Tokens | Est. Cost\n7. Project breakdown table: columns Project (`path.basename(cwd)` logic inline) | Sessions | Tokens | Est. Cost\n\nMount: `import { createRoot } from 'react-dom/client'; createRoot(document.getElementById('root')!).render(<App />);`",
+      "status": "completed",
+      "dependencies": [
+        "T1"
+      ],
+      "attempts": 1,
       "max_attempts": 3,
       "blocked": false
     },
@@ -76,29 +88,40 @@
       "id": "T8",
       "title": "Implement dashboard panel (src/dashboardPanel.ts)",
       "description": "Create `src/dashboardPanel.ts` implementing a singleton VS Code Webview panel.\n\nImports: `vscode`, `fs`, `path`, `UsageEntry` from `./types`.\n\n```typescript\nexport class DashboardPanel {\n  static currentPanel: DashboardPanel | undefined;\n  private readonly panel: vscode.WebviewPanel;\n  private disposables: vscode.Disposable[] = [];\n\n  static createOrShow(extensionUri: vscode.Uri, entries: UsageEntry[]): void\n  // If currentPanel exists, reveal it; otherwise create a new WebviewPanel:\n  // vscode.window.createWebviewPanel('claudeUsage', 'Claude Usage Dashboard', vscode.ViewColumn.One, { enableScripts: true })\n  // Set panel.webview.html from the template (see below)\n  // Send data immediately after creation\n\n  sendData(entries: UsageEntry[]): void\n  // panel.webview.postMessage({ type: 'update', entries })\n\n  private getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri): string\n  // Read webview/index.html as UTF-8 string using fs.readFileSync\n  // Create webviewUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'dist', 'webview.js'))\n  // Replace '{{WEBVIEW_JS_URI}}' with webviewUri.toString()\n  // Return the modified HTML string\n\n  dispose(): void\n  // panel.dispose(), clear disposables\n}\n```\n\nOn panel disposal (`panel.onDidDispose`), set `DashboardPanel.currentPanel = undefined` and call `this.dispose()`.",
-      "status": "pending",
-      "dependencies": ["T3", "T6", "T7"],
-      "attempts": 0,
+      "status": "completed",
+      "dependencies": [
+        "T3",
+        "T6",
+        "T7"
+      ],
+      "attempts": 1,
       "max_attempts": 3,
       "blocked": false
     },
     {
       "id": "T9",
       "title": "Implement status bar item (src/statusBar.ts)",
-      "description": "Create `src/statusBar.ts` wrapping a VS Code status bar item.\n\nImports: `vscode`, `UsageEntry` from `./types`, `calculateCost`, `formatCost`, `formatTokens` from `./costCalculator`.\n\n```typescript\nexport class UsageStatusBar {\n  private statusBarItem: vscode.StatusBarItem;\n\n  constructor() {\n    this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);\n    this.statusBarItem.command = 'claudeUsage.openDashboard';\n    this.statusBarItem.tooltip = 'Claude Usage Today — Click to open dashboard';\n  }\n\n  update(entries: UsageEntry[]): void {\n    // Filter to today's entries: new Date(e.timestamp).toDateString() === new Date().toDateString()\n    // Sum inputTokens + outputTokens + cacheCreationTokens + cacheReadTokens for total token display\n    // Sum calculateCost(e) for all today's entries for total cost\n    // Set text: `$(graph) Claude: ${formatCost(totalCost)} · ${formatTokens(totalTokens)} tokens`\n  }\n\n  show(): void { this.statusBarItem.show(); }\n  dispose(): void { this.statusBarItem.dispose(); }\n}\n```",
-      "status": "pending",
-      "dependencies": ["T3", "T5"],
-      "attempts": 0,
+      "description": "Create `src/statusBar.ts` wrapping a VS Code status bar item.\n\nImports: `vscode`, `UsageEntry` from `./types`, `calculateCost`, `formatCost`, `formatTokens` from `./costCalculator`.\n\n```typescript\nexport class UsageStatusBar {\n  private statusBarItem: vscode.StatusBarItem;\n\n  constructor() {\n    this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);\n    this.statusBarItem.command = 'claudeUsage.openDashboard';\n    this.statusBarItem.tooltip = 'Claude Usage Today \u2014 Click to open dashboard';\n  }\n\n  update(entries: UsageEntry[]): void {\n    // Filter to today's entries: new Date(e.timestamp).toDateString() === new Date().toDateString()\n    // Sum inputTokens + outputTokens + cacheCreationTokens + cacheReadTokens for total token display\n    // Sum calculateCost(e) for all today's entries for total cost\n    // Set text: `$(graph) Claude: ${formatCost(totalCost)} \u00b7 ${formatTokens(totalTokens)} tokens`\n  }\n\n  show(): void { this.statusBarItem.show(); }\n  dispose(): void { this.statusBarItem.dispose(); }\n}\n```",
+      "status": "completed",
+      "dependencies": [
+        "T3",
+        "T5"
+      ],
+      "attempts": 1,
       "max_attempts": 3,
       "blocked": false
     },
     {
       "id": "T10",
       "title": "Implement extension entry point (src/extension.ts)",
-      "description": "Create `src/extension.ts` — the main extension entry point wiring all components together.\n\nImports: `vscode`, `fs`, `path`, `os`, `parseUsageData` from `./usageParser`, `UsageStatusBar` from `./statusBar`, `DashboardPanel` from `./dashboardPanel`.\n\n```typescript\nexport function activate(context: vscode.ExtensionContext): void {\n  const statusBar = new UsageStatusBar();\n  statusBar.show();\n\n  // Initial data load\n  let entries = parseUsageData();\n  statusBar.update(entries);\n\n  // Refresh function\n  function refresh() {\n    entries = parseUsageData();\n    statusBar.update(entries);\n    if (DashboardPanel.currentPanel) {\n      DashboardPanel.currentPanel.sendData(entries);\n    }\n  }\n\n  // Register command\n  const openCmd = vscode.commands.registerCommand('claudeUsage.openDashboard', () => {\n    DashboardPanel.createOrShow(context.extensionUri, entries);\n  });\n\n  // 60-second polling interval\n  const interval = setInterval(refresh, 60_000);\n\n  // Node.js fs.watch on ~/.claude/projects/ for real-time updates\n  const projectsDir = path.join(os.homedir(), '.claude', 'projects');\n  let watcher: fs.FSWatcher | undefined;\n  if (fs.existsSync(projectsDir)) {\n    watcher = fs.watch(projectsDir, { recursive: true }, () => refresh());\n  }\n\n  // Dispose all on deactivation\n  context.subscriptions.push(\n    openCmd,\n    statusBar,\n    { dispose: () => { clearInterval(interval); watcher?.close(); } }\n  );\n}\n\nexport function deactivate(): void {}\n```\n\nNote: `vscode.workspace.createFileSystemWatcher` only watches within the VS Code workspace, which won't cover `~/.claude/projects/`. Use only Node.js `fs.watch` with `recursive: true` for external directory watching.",
-      "status": "pending",
-      "dependencies": ["T4", "T8", "T9"],
-      "attempts": 0,
+      "description": "Create `src/extension.ts` \u2014 the main extension entry point wiring all components together.\n\nImports: `vscode`, `fs`, `path`, `os`, `parseUsageData` from `./usageParser`, `UsageStatusBar` from `./statusBar`, `DashboardPanel` from `./dashboardPanel`.\n\n```typescript\nexport function activate(context: vscode.ExtensionContext): void {\n  const statusBar = new UsageStatusBar();\n  statusBar.show();\n\n  // Initial data load\n  let entries = parseUsageData();\n  statusBar.update(entries);\n\n  // Refresh function\n  function refresh() {\n    entries = parseUsageData();\n    statusBar.update(entries);\n    if (DashboardPanel.currentPanel) {\n      DashboardPanel.currentPanel.sendData(entries);\n    }\n  }\n\n  // Register command\n  const openCmd = vscode.commands.registerCommand('claudeUsage.openDashboard', () => {\n    DashboardPanel.createOrShow(context.extensionUri, entries);\n  });\n\n  // 60-second polling interval\n  const interval = setInterval(refresh, 60_000);\n\n  // Node.js fs.watch on ~/.claude/projects/ for real-time updates\n  const projectsDir = path.join(os.homedir(), '.claude', 'projects');\n  let watcher: fs.FSWatcher | undefined;\n  if (fs.existsSync(projectsDir)) {\n    watcher = fs.watch(projectsDir, { recursive: true }, () => refresh());\n  }\n\n  // Dispose all on deactivation\n  context.subscriptions.push(\n    openCmd,\n    statusBar,\n    { dispose: () => { clearInterval(interval); watcher?.close(); } }\n  );\n}\n\nexport function deactivate(): void {}\n```\n\nNote: `vscode.workspace.createFileSystemWatcher` only watches within the VS Code workspace, which won't cover `~/.claude/projects/`. Use only Node.js `fs.watch` with `recursive: true` for external directory watching.",
+      "status": "completed",
+      "dependencies": [
+        "T4",
+        "T8",
+        "T9"
+      ],
+      "attempts": 1,
       "max_attempts": 3,
       "blocked": false
     }

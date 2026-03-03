@@ -1,1 +1,82 @@
-[]
+[
+  {
+    "iteration": 1,
+    "task_id": "T1",
+    "status": "completed",
+    "summary": "Created package.json, tsconfig.json, .gitignore, and .vscodeignore with all required configuration for the claude-usage-tracker VS Code extension",
+    "files_modified": ["package.json", "tsconfig.json", ".gitignore", ".vscodeignore"],
+    "obstacles": []
+  },
+  {
+    "iteration": 2,
+    "task_id": "T2",
+    "status": "completed",
+    "summary": "Created esbuild.mjs at project root with two esbuild context builds: extension (CJS/node, external vscode) and webview (IIFE/browser). Supports --watch flag via context.watch().",
+    "files_modified": ["esbuild.mjs"],
+    "obstacles": []
+  },
+  {
+    "iteration": 3,
+    "task_id": "T3",
+    "status": "completed",
+    "summary": "Created src/types.ts exporting the UsageEntry interface with all required fields (timestamp, sessionId, cwd, model, inputTokens, outputTokens, cacheCreationTokens, cacheReadTokens). No logic, just the interface.",
+    "files_modified": ["src/types.ts"],
+    "obstacles": []
+  },
+  {
+    "iteration": 4,
+    "task_id": "T4",
+    "status": "completed",
+    "summary": "Created src/usageParser.ts with walkDir helper (recursive JSONL file finder using readdirSync/withFileTypes) and parseUsageData function that reads ~/.claude/projects/, parses assistant entries, and returns a flat UsageEntry array. Returns [] if base dir doesn't exist.",
+    "files_modified": ["src/usageParser.ts"],
+    "obstacles": []
+  },
+  {
+    "iteration": 5,
+    "task_id": "T5",
+    "status": "completed",
+    "summary": "Created src/costCalculator.ts with getPricing helper (haiku/opus/default tiers), calculateCost (sums per-token costs using per-million rates), formatCost (returns $X.XX), and formatTokens (<1k as-is, >=1k as Xk, >=1M as X.XM).",
+    "files_modified": ["src/costCalculator.ts"],
+    "obstacles": []
+  },
+  {
+    "iteration": 6,
+    "task_id": "T6",
+    "status": "completed",
+    "summary": "Created webview/index.html with the HTML scaffold using {{WEBVIEW_JS_URI}} placeholder, VS Code CSS variables for theming, and a #root div for React mounting.",
+    "files_modified": ["webview/index.html"],
+    "obstacles": []
+  },
+  {
+    "iteration": 7,
+    "task_id": "T7",
+    "status": "completed",
+    "summary": "Created webview/App.tsx with full React dashboard: inline UsageEntry interface and pricing logic, tab navigation (today/week/month/all), summary cards, HTML/CSS bar chart (hourly for today, daily for other tabs), model breakdown table, and project breakdown table. Mounts via createRoot.",
+    "files_modified": ["webview/App.tsx"],
+    "obstacles": []
+  },
+  {
+    "iteration": 8,
+    "task_id": "T8",
+    "status": "completed",
+    "summary": "Created src/dashboardPanel.ts implementing the singleton DashboardPanel class with createOrShow (reveals existing or creates new WebviewPanel), sendData (postMessage to webview), getWebviewContent (reads webview/index.html and replaces {{WEBVIEW_JS_URI}} placeholder), and dispose methods.",
+    "files_modified": ["src/dashboardPanel.ts"],
+    "obstacles": []
+  },
+  {
+    "iteration": 9,
+    "task_id": "T9",
+    "status": "completed",
+    "summary": "Created src/statusBar.ts with UsageStatusBar class: constructor sets up StatusBarItem (left-aligned, priority 100, openDashboard command, tooltip), update() filters today's entries and sets text with formatted cost and token count, plus show() and dispose() methods.",
+    "files_modified": ["src/statusBar.ts"],
+    "obstacles": []
+  },
+  {
+    "iteration": 10,
+    "task_id": "T10",
+    "status": "completed",
+    "summary": "Created src/extension.ts — the main extension entry point. Wires together UsageStatusBar, parseUsageData, and DashboardPanel. Registers claudeUsage.openDashboard command, sets up 60-second polling interval, and uses Node.js fs.watch on ~/.claude/projects/ for real-time file change detection. Disposes all resources on deactivation.",
+    "files_modified": ["src/extension.ts"],
+    "obstacles": []
+  }
+]
