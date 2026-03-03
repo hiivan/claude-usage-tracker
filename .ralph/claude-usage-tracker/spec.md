@@ -13,18 +13,18 @@ A VS Code extension that tracks and visualizes Claude Code (CLI) usage by parsin
 ## Requirements
 
 ### 1. JSONL Data Parser (`src/usageParser.ts`)
-- Recursively scan `~/.claude/projects/**/*.jsonl` for all session files
-- Parse each line as JSON and extract entries with `type === "assistant"` and a `message.usage` object
-- From each usage entry, collect:
-  - `input_tokens`
-  - `output_tokens`
-  - `cache_creation_input_tokens`
-  - `cache_read_input_tokens`
-  - `message.model` (e.g. `claude-sonnet-4-6`, `claude-opus-4-6`, `claude-haiku-4-5`)
-  - `timestamp` (ISO string on the entry)
-  - `sessionId`
-  - `cwd` (working directory = project name)
-- Aggregate all parsed entries into a flat array of `UsageEntry` objects
+- Recursively scan `~/.claude/projects/**/*.jsonl` for all session files, including nested subagent sessions (e.g. `~/.claude/projects/{project}/{sessionId}/subagents/*.jsonl`)
+- Parse each line as JSON and extract entries with `type === "assistant"` and a `message.usage` object; skip `"user"` and `"queue-operation"` entries
+- Each JSONL line is a top-level JSON object. The actual field names on the entry are:
+  - `entry.timestamp` — ISO 8601 string (e.g. `"2026-03-03T09:22:59.592Z"`)
+  - `entry.sessionId` — UUID string identifying the session
+  - `entry.cwd` — full filesystem path of the working directory (e.g. `/Users/ivan/Downloads/my-project`)
+  - `entry.message.model` — model string (e.g. `"claude-sonnet-4-6"`)
+  - `entry.message.usage.input_tokens` — number
+  - `entry.message.usage.output_tokens` — number
+  - `entry.message.usage.cache_creation_input_tokens` — number (maps to cache_write cost; default 0 if absent)
+  - `entry.message.usage.cache_read_input_tokens` — number (default 0 if absent)
+- Aggregate all parsed entries into a flat array of `UsageEntry` objects (see Section 9 for the interface)
 
 ### 2. Cost Calculator (`src/costCalculator.ts`)
 Calculate estimated USD cost based on model and token counts using these per-million-token rates:
@@ -57,9 +57,11 @@ The dashboard must include:
 - Estimated Cost (USD)
 
 **Daily Bar Chart** (simple HTML/CSS bars, no external chart library):
-- X-axis: days (last 7 days for Week tab, last 30 for Month tab, last 7 days for Today tab showing hourly)
-- Y-axis: token count
-- Each bar labeled with its value
+- Today tab: hourly bars with X-axis = hours 0–23 of the current calendar day, Y-axis = token count per hour
+- This Week tab: daily bars for the last 7 days
+- This Month tab: daily bars for the last 30 days
+- All Time tab: daily bars for the last 30 days (same as Month)
+- Each bar labeled with its token value
 
 **Model Breakdown table**:
 - Columns: Model | Sessions | Input Tokens | Output Tokens | Est. Cost
@@ -103,6 +105,60 @@ The dashboard must include:
   }
 }
 ```
+
+### 9. Shared Types (`src/types.ts`)
+Define a single shared interface used by all extension-side modules:
+```typescript
+export interface UsageEntry {
+  timestamp: string;             // ISO string from entry.timestamp
+  sessionId: string;             // from entry.sessionId (UUID)
+  cwd: string;                   // from entry.cwd (full path, e.g. "/Users/ivan/my-project")
+  model: string;                 // from entry.message.model
+  inputTokens: number;           // entry.message.usage.input_tokens
+  outputTokens: number;          // entry.message.usage.output_tokens
+  cacheCreationTokens: number;   // entry.message.usage.cache_creation_input_tokens ?? 0
+  cacheReadTokens: number;       // entry.message.usage.cache_read_input_tokens ?? 0
+}
+```
+> Note: The webview (`webview/App.tsx`) runs in a browser sandbox and cannot import this file. It should declare an equivalent local interface or use the same field names without an import.
+
+### 10. Package Configuration Details
+`package.json` devDependencies (not bundled with extension):
+- `esbuild`, `typescript`, `@types/vscode@^1.85.0`, `@types/react@^18`, `@types/react-dom@^18`
+
+`package.json` dependencies (bundled into webview bundle by esbuild):
+- `react@^18`, `react-dom@^18`
+
+`tsconfig.json` settings:
+- `"target": "ES2020"`, `"module": "commonjs"`, `"jsx": "react"`, `"strict": true`, `"esModuleInterop": true`, `"outDir": "dist"`, `"include": ["src", "webview"]`
+
+Build config file: `esbuild.mjs` at project root, with two build steps:
+1. `src/extension.ts` → `dist/extension.js` (format: `cjs`, platform: `node`, external: `['vscode']`, bundle: true, sourcemap: true)
+2. `webview/App.tsx` → `dist/webview.js` (format: `iife`, platform: `browser`, bundle: true, sourcemap: true)
+- Support `--watch` flag: when `process.argv.includes('--watch')`, call `ctx.watch()` on both contexts
+
+### 11. Webview HTML Template (`webview/index.html`)
+`dashboardPanel.ts` reads `webview/index.html`, replaces the placeholder `{{WEBVIEW_JS_URI}}` with a VS Code webview-safe URI (via `panel.webview.asWebviewUri`), and sets it as `panel.webview.html`. Template:
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src {{CSP_NONCE}}; style-src 'unsafe-inline';">
+  <title>Claude Usage Dashboard</title>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="{{WEBVIEW_JS_URI}}"></script>
+</body>
+</html>
+```
+
+### 12. Webview Data Protocol
+- Extension → webview: `panel.webview.postMessage({ type: 'update', entries: UsageEntry[] })`
+- Webview receives via: `window.addEventListener('message', (event) => { const { type, entries } = event.data; ... })`
+- Extension sends current data immediately when panel opens, and re-sends on every refresh
 
 ## Out of Scope
 - Syncing with Anthropic's API for official usage data
