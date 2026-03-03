@@ -38,5 +38,13 @@
     "summary": "Created src/costCalculator.ts with getPricing helper (haiku/opus/default tiers), calculateCost (sums per-token costs using per-million rates), formatCost (returns $X.XX), and formatTokens (<1k as-is, >=1k as Xk, >=1M as X.XM).",
     "files_modified": ["src/costCalculator.ts"],
     "obstacles": []
+  },
+  {
+    "iteration": 6,
+    "task_id": "T6",
+    "status": "completed",
+    "summary": "Created webview/index.html with the HTML scaffold using {{WEBVIEW_JS_URI}} placeholder, VS Code CSS variables for theming, and a #root div for React mounting.",
+    "files_modified": ["webview/index.html"],
+    "obstacles": []
   }
 ]

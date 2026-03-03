@@ -64,11 +64,11 @@
       "id": "T6",
       "title": "Create webview HTML template (webview/index.html)",
       "description": "Create `webview/index.html` \u2014 the HTML scaffold loaded by `dashboardPanel.ts`. The file uses a placeholder `{{WEBVIEW_JS_URI}}` that `dashboardPanel.ts` replaces at runtime with a VS Code webview-safe URI via `panel.webview.asWebviewUri`.\n\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Claude Usage Dashboard</title>\n  <style>\n    body { margin: 0; font-family: var(--vscode-font-family, sans-serif); background: var(--vscode-editor-background); color: var(--vscode-editor-foreground); }\n  </style>\n</head>\n<body>\n  <div id=\"root\"></div>\n  <script src=\"{{WEBVIEW_JS_URI}}\"></script>\n</body>\n</html>\n```\n\nThe inline style uses VS Code CSS variables so the dashboard matches the user's theme automatically.",
-      "status": "pending",
+      "status": "completed",
       "dependencies": [
         "T1"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "max_attempts": 3,
       "blocked": false
     },
