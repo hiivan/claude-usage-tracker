@@ -115,13 +115,13 @@
       "id": "T10",
       "title": "Implement extension entry point (src/extension.ts)",
       "description": "Create `src/extension.ts` \u2014 the main extension entry point wiring all components together.\n\nImports: `vscode`, `fs`, `path`, `os`, `parseUsageData` from `./usageParser`, `UsageStatusBar` from `./statusBar`, `DashboardPanel` from `./dashboardPanel`.\n\n```typescript\nexport function activate(context: vscode.ExtensionContext): void {\n  const statusBar = new UsageStatusBar();\n  statusBar.show();\n\n  // Initial data load\n  let entries = parseUsageData();\n  statusBar.update(entries);\n\n  // Refresh function\n  function refresh() {\n    entries = parseUsageData();\n    statusBar.update(entries);\n    if (DashboardPanel.currentPanel) {\n      DashboardPanel.currentPanel.sendData(entries);\n    }\n  }\n\n  // Register command\n  const openCmd = vscode.commands.registerCommand('claudeUsage.openDashboard', () => {\n    DashboardPanel.createOrShow(context.extensionUri, entries);\n  });\n\n  // 60-second polling interval\n  const interval = setInterval(refresh, 60_000);\n\n  // Node.js fs.watch on ~/.claude/projects/ for real-time updates\n  const projectsDir = path.join(os.homedir(), '.claude', 'projects');\n  let watcher: fs.FSWatcher | undefined;\n  if (fs.existsSync(projectsDir)) {\n    watcher = fs.watch(projectsDir, { recursive: true }, () => refresh());\n  }\n\n  // Dispose all on deactivation\n  context.subscriptions.push(\n    openCmd,\n    statusBar,\n    { dispose: () => { clearInterval(interval); watcher?.close(); } }\n  );\n}\n\nexport function deactivate(): void {}\n```\n\nNote: `vscode.workspace.createFileSystemWatcher` only watches within the VS Code workspace, which won't cover `~/.claude/projects/`. Use only Node.js `fs.watch` with `recursive: true` for external directory watching.",
-      "status": "pending",
+      "status": "completed",
       "dependencies": [
         "T4",
         "T8",
         "T9"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "max_attempts": 3,
       "blocked": false
     }

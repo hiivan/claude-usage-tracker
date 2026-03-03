@@ -70,5 +70,13 @@
     "summary": "Created src/statusBar.ts with UsageStatusBar class: constructor sets up StatusBarItem (left-aligned, priority 100, openDashboard command, tooltip), update() filters today's entries and sets text with formatted cost and token count, plus show() and dispose() methods.",
     "files_modified": ["src/statusBar.ts"],
     "obstacles": []
+  },
+  {
+    "iteration": 10,
+    "task_id": "T10",
+    "status": "completed",
+    "summary": "Created src/extension.ts — the main extension entry point. Wires together UsageStatusBar, parseUsageData, and DashboardPanel. Registers claudeUsage.openDashboard command, sets up 60-second polling interval, and uses Node.js fs.watch on ~/.claude/projects/ for real-time file change detection. Disposes all resources on deactivation.",
+    "files_modified": ["src/extension.ts"],
+    "obstacles": []
   }
 ]
