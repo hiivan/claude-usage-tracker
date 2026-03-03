@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "iteration": 1,
+    "task_id": "T1",
+    "status": "completed",
+    "summary": "Created package.json, tsconfig.json, .gitignore, and .vscodeignore with all required configuration for the claude-usage-tracker VS Code extension",
+    "files_modified": ["package.json", "tsconfig.json", ".gitignore", ".vscodeignore"],
+    "obstacles": []
+  },
+  {
+    "iteration": 2,
+    "task_id": "T2",
+    "status": "completed",
+    "summary": "Created esbuild.mjs at project root with two esbuild context builds: extension (CJS/node, external vscode) and webview (IIFE/browser). Supports --watch flag via context.watch().",
+    "files_modified": ["esbuild.mjs"],
+    "obstacles": []
+  },
+  {
+    "iteration": 3,
+    "task_id": "T3",
+    "status": "completed",
+    "summary": "Created src/types.ts exporting the UsageEntry interface with all required fields (timestamp, sessionId, cwd, model, inputTokens, outputTokens, cacheCreationTokens, cacheReadTokens). No logic, just the interface.",
+    "files_modified": ["src/types.ts"],
+    "obstacles": []
+  }
+]
