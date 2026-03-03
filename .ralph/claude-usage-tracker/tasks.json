@@ -52,11 +52,11 @@
       "id": "T5",
       "title": "Implement cost calculator (src/costCalculator.ts)",
       "description": "Create `src/costCalculator.ts` with pricing logic and formatting utilities.\n\nImports: `UsageEntry` from `./types`.\n\nPer-million-token pricing tiers (check model string with `includes`):\n- Model contains `'haiku'`: input $0.80, output $4.00, cache_read $0.08, cache_write $1.00\n- Model contains `'opus'`: input $15.00, output $75.00, cache_read $1.50, cache_write $18.75\n- Default (sonnet / unknown): input $3.00, output $15.00, cache_read $0.30, cache_write $3.75\n\nExport the following functions:\n\n```typescript\nexport function calculateCost(entry: UsageEntry): number\n// Returns USD cost: sum of (tokens / 1_000_000) * rate for each token type\n// cache_creation_input_tokens uses cache_write rate\n// cache_read_input_tokens uses cache_read rate\n\nexport function formatCost(usd: number): string\n// Returns \"$X.XX\" \u2014 always 2 decimal places minimum\n\nexport function formatTokens(count: number): string\n// < 1000: return count as string\n// >= 1000 and < 1_000_000: return Math.round(count/1000) + 'k'\n// >= 1_000_000: return (count/1_000_000).toFixed(1) + 'M'\n```",
-      "status": "pending",
+      "status": "completed",
       "dependencies": [
         "T3"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "max_attempts": 3,
       "blocked": false
     },

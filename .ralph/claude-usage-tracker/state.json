@@ -30,5 +30,13 @@
     "summary": "Created src/usageParser.ts with walkDir helper (recursive JSONL file finder using readdirSync/withFileTypes) and parseUsageData function that reads ~/.claude/projects/, parses assistant entries, and returns a flat UsageEntry array. Returns [] if base dir doesn't exist.",
     "files_modified": ["src/usageParser.ts"],
     "obstacles": []
+  },
+  {
+    "iteration": 5,
+    "task_id": "T5",
+    "status": "completed",
+    "summary": "Created src/costCalculator.ts with getPricing helper (haiku/opus/default tiers), calculateCost (sums per-token costs using per-million rates), formatCost (returns $X.XX), and formatTokens (<1k as-is, >=1k as Xk, >=1M as X.XM).",
+    "files_modified": ["src/costCalculator.ts"],
+    "obstacles": []
   }
 ]
