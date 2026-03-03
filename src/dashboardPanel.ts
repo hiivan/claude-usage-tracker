@@ -19,6 +19,16 @@ export class DashboardPanel {
       null,
       this.disposables
     );
+    // Handle messages from the webview
+    this.panel.webview.onDidReceiveMessage(
+      (message: { type: string; url?: string }) => {
+        if (message.type === 'openUrl' && message.url) {
+          vscode.env.openExternal(vscode.Uri.parse(message.url));
+        }
+      },
+      null,
+      this.disposables
+    );
   }
 
   static createOrShow(extensionUri: vscode.Uri, entries: UsageEntry[], billingMode: 'api' | 'pro' | 'max' = 'api'): void {

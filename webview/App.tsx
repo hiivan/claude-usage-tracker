@@ -185,6 +185,14 @@ const PLAN_LABELS: Record<BillingMode, string | null> = {
   max: 'Claude Max ($100/mo)',
 };
 
+// Acquire the VS Code API for postMessage back to the extension host
+declare function acquireVsCodeApi(): { postMessage(msg: unknown): void };
+const vscodeApi = acquireVsCodeApi();
+
+function openPlanUsage() {
+  vscodeApi.postMessage({ type: 'openUrl', url: 'https://claude.ai/settings' });
+}
+
 function App() {
   const [entries, setEntries] = useState<UsageEntry[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>('today');
@@ -204,6 +212,12 @@ function App() {
   }, []);
 
   const showCost = billingMode === 'api';
+
+  // Weekly activity (always computed from all entries, not filtered by tab)
+  const weekCutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const weekEntries = entries.filter(e => new Date(e.timestamp) >= weekCutoff);
+  const weekSessions = new Set(weekEntries.map(e => e.sessionId)).size;
+  const weekMessages = weekEntries.length;
 
   const filtered = filterEntries(entries, activeTab);
 
@@ -301,21 +315,51 @@ function App() {
         ))}
       </div>
 
-      {/* Plan badge for subscription users */}
+      {/* Subscription plan banner */}
       {!showCost && PLAN_LABELS[billingMode] && (
         <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '6px',
-          marginBottom: '16px',
-          padding: '4px 12px',
-          borderRadius: '20px',
-          fontSize: '12px',
-          fontWeight: 600,
-          background: 'var(--vscode-charts-blue, #007acc)',
-          color: '#fff',
+          marginBottom: '20px',
+          padding: '14px 16px',
+          borderRadius: '8px',
+          border: '1px solid var(--vscode-charts-blue, #007acc)',
+          background: 'rgba(0, 122, 204, 0.08)',
         }}>
-          ✦ {PLAN_LABELS[billingMode]}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: '8px' }}>
+                ✦ {PLAN_LABELS[billingMode]}
+              </div>
+              <div style={{ display: 'flex', gap: '24px', fontSize: '13px' }}>
+                <span>
+                  <span style={{ color: 'var(--vscode-descriptionForeground, #888)', marginRight: '6px' }}>Sessions this week</span>
+                  <strong>{weekSessions}</strong>
+                </span>
+                <span>
+                  <span style={{ color: 'var(--vscode-descriptionForeground, #888)', marginRight: '6px' }}>Messages this week</span>
+                  <strong>{weekMessages}</strong>
+                </span>
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--vscode-descriptionForeground, #888)', marginTop: '6px' }}>
+                Exact plan limits are tracked server-side by Anthropic.
+              </div>
+            </div>
+            <button
+              onClick={openPlanUsage}
+              style={{
+                padding: '6px 14px',
+                border: '1px solid var(--vscode-charts-blue, #007acc)',
+                borderRadius: '4px',
+                background: 'transparent',
+                color: 'var(--vscode-charts-blue, #007acc)',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontWeight: 500,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              View plan limits on claude.ai →
+            </button>
+          </div>
         </div>
       )}
 
