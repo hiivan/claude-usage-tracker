@@ -1,0 +1,35 @@
+{
+  "name": "claude-usage-tracker",
+  "displayName": "Claude Usage Tracker",
+  "description": "Track your Claude Code token usage and cost",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "main": "./dist/extension.js",
+  "activationEvents": ["*"],
+  "contributes": {
+    "commands": [
+      {
+        "command": "claudeUsage.openDashboard",
+        "title": "Claude Usage: Open Dashboard"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "esbuild": "latest",
+    "typescript": "latest",
+    "@types/vscode": "^1.85.0",
+    "@types/react": "^18",
+    "@types/react-dom": "^18"
+  },
+  "dependencies": {
+    "react": "^18",
+    "react-dom": "^18"
+  }
+}
