@@ -1,5 +1,12 @@
 export type BillingMode = 'api' | 'pro' | 'max5' | 'max20';
 
+export const WINDOW_LIMITS: Record<BillingMode, number | null> = {
+  api:   null,
+  pro:   19_000,
+  max5:  88_000,
+  max20: 220_000,
+};
+
 export interface UsageEntry {
   timestamp: string;             // ISO string from entry.timestamp
   sessionId: string;             // entry.sessionId (UUID)

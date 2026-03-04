@@ -49,7 +49,11 @@ function basename(p: string): string {
 }
 
 type Tab = 'today' | 'week' | 'month' | 'all';
-type BillingMode = 'api' | 'pro' | 'max';
+type BillingMode = 'api' | 'pro' | 'max5' | 'max20';
+
+const WINDOW_LIMITS: Record<BillingMode, number | null> = {
+  api: null, pro: 19_000, max5: 88_000, max20: 220_000,
+};
 
 function filterEntries(entries: UsageEntry[], tab: Tab): UsageEntry[] {
   const now = new Date();
@@ -68,18 +72,28 @@ function filterEntries(entries: UsageEntry[], tab: Tab): UsageEntry[] {
   return entries;
 }
 
+function totalTokens(e: UsageEntry): number {
+  return e.inputTokens + e.outputTokens + e.cacheCreationTokens + e.cacheReadTokens;
+}
+
+function formatTimeRemaining(ms: number): string {
+  const h = Math.floor(ms / 3_600_000);
+  const m = Math.floor((ms % 3_600_000) / 60_000);
+  if (h > 0) return `${h}h ${m}min`;
+  return `${m}min`;
+}
+
 // Build hourly bars for "today" tab
 function buildHourlyBars(entries: UsageEntry[]): { label: string; tokens: number }[] {
-  const bars: { label: string; tokens: number }[] = [];
-  for (let h = 0; h < 24; h++) {
-    const hourEntries = entries.filter(e => new Date(e.timestamp).getHours() === h);
-    const tokens = hourEntries.reduce(
-      (sum, e) => sum + e.inputTokens + e.outputTokens + e.cacheCreationTokens + e.cacheReadTokens,
-      0
-    );
-    bars.push({ label: String(h).padStart(2, '0'), tokens });
+  const map = new Map<number, number>();
+  for (const e of entries) {
+    const h = new Date(e.timestamp).getHours();
+    map.set(h, (map.get(h) ?? 0) + totalTokens(e));
   }
-  return bars;
+  return Array.from({ length: 24 }, (_, h) => ({
+    label: String(h).padStart(2, '0'),
+    tokens: map.get(h) ?? 0,
+  }));
 }
 
 // Build daily bars for week/month/all tabs
@@ -88,8 +102,7 @@ function buildDailyBars(entries: UsageEntry[]): { label: string; tokens: number 
   for (const e of entries) {
     const d = new Date(e.timestamp);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    const tokens = e.inputTokens + e.outputTokens + e.cacheCreationTokens + e.cacheReadTokens;
-    map.set(key, (map.get(key) ?? 0) + tokens);
+    map.set(key, (map.get(key) ?? 0) + totalTokens(e));
   }
   return Array.from(map.entries())
     .sort((a, b) => a[0].localeCompare(b[0]))
@@ -180,9 +193,7 @@ function SummaryCard({ title, value }: SummaryCardProps) {
 }
 
 const PLAN_LABELS: Record<BillingMode, string | null> = {
-  api: null,
-  pro: 'Claude Pro ($20/mo)',
-  max: 'Claude Max ($100/mo)',
+  api: null, pro: 'Claude Pro ($20/mo)', max5: 'Claude Max ($100/mo)', max20: 'Claude Max ($400/mo)',
 };
 
 // Acquire the VS Code API for postMessage back to the extension host
@@ -213,11 +224,17 @@ function App() {
 
   const showCost = billingMode === 'api';
 
-  // Weekly activity (always computed from all entries, not filtered by tab)
-  const weekCutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-  const weekEntries = entries.filter(e => new Date(e.timestamp) >= weekCutoff);
-  const weekSessions = new Set(weekEntries.map(e => e.sessionId)).size;
-  const weekMessages = weekEntries.length;
+  const windowLimit = WINDOW_LIMITS[billingMode];
+  const windowCutoff = new Date(Date.now() - 5 * 60 * 60 * 1000);
+  const windowEntries = entries.filter(e => new Date(e.timestamp) >= windowCutoff);
+  const windowTokensCount = windowEntries.reduce((s, e) => s + totalTokens(e), 0);
+  const windowPct = windowLimit ? Math.round(windowTokensCount / windowLimit * 100) : 0;
+
+  const windowStart = windowEntries.length > 0
+    ? Math.min(...windowEntries.map(e => new Date(e.timestamp).getTime()))
+    : null;
+  const resetAt = windowStart !== null ? windowStart + 5 * 60 * 60 * 1000 : null;
+  const resetInMs = resetAt !== null ? Math.max(0, resetAt - Date.now()) : null;
 
   const filtered = filterEntries(entries, activeTab);
 
@@ -253,7 +270,7 @@ function App() {
     }
     const p = projectMap.get(proj)!;
     p.sessions.add(e.sessionId);
-    p.tokens += e.inputTokens + e.outputTokens + e.cacheCreationTokens + e.cacheReadTokens;
+    p.tokens += totalTokens(e);
     p.cost += calculateCost(e);
   }
   const projectRows = Array.from(projectMap.entries()).sort((a, b) => b[1].cost - a[1].cost);
@@ -318,48 +335,56 @@ function App() {
       {/* Subscription plan banner */}
       {!showCost && PLAN_LABELS[billingMode] && (
         <div style={{
-          marginBottom: '20px',
-          padding: '14px 16px',
-          borderRadius: '8px',
+          marginBottom: '20px', padding: '14px 16px', borderRadius: '8px',
           border: '1px solid var(--vscode-charts-blue, #007acc)',
           background: 'rgba(0, 122, 204, 0.08)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-            <div>
-              <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: '8px' }}>
-                ✦ {PLAN_LABELS[billingMode]}
-              </div>
-              <div style={{ display: 'flex', gap: '24px', fontSize: '13px' }}>
-                <span>
-                  <span style={{ color: 'var(--vscode-descriptionForeground, #888)', marginRight: '6px' }}>Sessions this week</span>
-                  <strong>{weekSessions}</strong>
-                </span>
-                <span>
-                  <span style={{ color: 'var(--vscode-descriptionForeground, #888)', marginRight: '6px' }}>Messages this week</span>
-                  <strong>{weekMessages}</strong>
-                </span>
-              </div>
-              <div style={{ fontSize: '11px', color: 'var(--vscode-descriptionForeground, #888)', marginTop: '6px' }}>
-                Exact plan limits are tracked server-side by Anthropic.
-              </div>
-            </div>
-            <button
-              onClick={openPlanUsage}
-              style={{
-                padding: '6px 14px',
-                border: '1px solid var(--vscode-charts-blue, #007acc)',
-                borderRadius: '4px',
-                background: 'transparent',
-                color: 'var(--vscode-charts-blue, #007acc)',
-                cursor: 'pointer',
-                fontSize: '12px',
-                fontWeight: 500,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              View plan limits on claude.ai →
-            </button>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+            <span style={{ fontWeight: 600, fontSize: '14px' }}>✦ {PLAN_LABELS[billingMode]}</span>
+            <button onClick={openPlanUsage} style={{
+              padding: '4px 10px', border: '1px solid var(--vscode-charts-blue, #007acc)',
+              borderRadius: '4px', background: 'transparent', color: 'var(--vscode-charts-blue, #007acc)',
+              cursor: 'pointer', fontSize: '11px', whiteSpace: 'nowrap',
+            }}>claude.ai →</button>
           </div>
+
+          {windowLimit !== null && (
+            <>
+              <div style={{ fontSize: '11px', color: 'var(--vscode-descriptionForeground, #888)', marginBottom: '6px' }}>
+                Current 5-hour window
+              </div>
+              {windowEntries.length === 0 ? (
+                <div style={{ fontSize: '12px', color: 'var(--vscode-descriptionForeground, #888)' }}>
+                  No activity in the last 5 hours
+                </div>
+              ) : (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                    <div style={{ flex: 1, height: '10px', borderRadius: '5px', background: 'rgba(255,255,255,0.1)', overflow: 'hidden' }}>
+                      <div style={{
+                        width: `${Math.min(windowPct, 100)}%`, height: '100%', borderRadius: '5px',
+                        background: windowPct < 70 ? 'var(--vscode-charts-green, #4caf50)'
+                          : windowPct < 90 ? '#f0a500'
+                          : 'var(--vscode-charts-red, #f44336)',
+                        transition: 'width 0.3s ease',
+                      }} />
+                    </div>
+                    <span style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                      {formatTokens(windowTokensCount)} / ~{formatTokens(windowLimit)} tokens ({windowPct}%)
+                    </span>
+                  </div>
+                  {resetInMs !== null && (
+                    <div style={{ fontSize: '11px', color: 'var(--vscode-descriptionForeground, #888)' }}>
+                      Resets in {formatTimeRemaining(resetInMs)}
+                    </div>
+                  )}
+                </>
+              )}
+              <div style={{ fontSize: '10px', color: 'var(--vscode-descriptionForeground, #666)', marginTop: '8px' }}>
+                Limits are approximate (community-discovered, not from Anthropic).
+              </div>
+            </>
+          )}
         </div>
       )}
 
