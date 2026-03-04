@@ -1,3 +1,5 @@
+export type BillingMode = 'api' | 'pro' | 'max5' | 'max20';
+
 export interface UsageEntry {
   timestamp: string;             // ISO string from entry.timestamp
   sessionId: string;             // entry.sessionId (UUID)

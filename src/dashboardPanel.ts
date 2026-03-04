@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { UsageEntry } from './types';
+import { UsageEntry, BillingMode } from './types';
 
 export class DashboardPanel {
   static currentPanel: DashboardPanel | undefined;
@@ -31,7 +31,7 @@ export class DashboardPanel {
     );
   }
 
-  static createOrShow(extensionUri: vscode.Uri, entries: UsageEntry[], billingMode: 'api' | 'pro' | 'max' = 'api'): void {
+  static createOrShow(extensionUri: vscode.Uri, entries: UsageEntry[], billingMode: BillingMode = 'api'): void {
     if (DashboardPanel.currentPanel) {
       DashboardPanel.currentPanel.panel.reveal(vscode.ViewColumn.One);
       DashboardPanel.currentPanel.sendData(entries, billingMode);
@@ -49,7 +49,7 @@ export class DashboardPanel {
     DashboardPanel.currentPanel.sendData(entries, billingMode);
   }
 
-  sendData(entries: UsageEntry[], billingMode: 'api' | 'pro' | 'max' = 'api'): void {
+  sendData(entries: UsageEntry[], billingMode: BillingMode = 'api'): void {
     this.panel.webview.postMessage({ type: 'update', entries, billingMode });
   }
 

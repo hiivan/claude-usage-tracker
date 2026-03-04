@@ -5,11 +5,13 @@ import * as os from 'os';
 import { parseUsageData } from './usageParser';
 import { UsageStatusBar } from './statusBar';
 import { DashboardPanel } from './dashboardPanel';
+import { BillingMode } from './types';
 
-function getBillingMode(): 'api' | 'pro' | 'max' {
+function getBillingMode(): BillingMode {
   const cfg = vscode.workspace.getConfiguration('claudeUsage');
   const mode = cfg.get<string>('billingMode', 'api');
-  return (mode === 'pro' || mode === 'max') ? mode : 'api';
+  if (mode === 'pro' || mode === 'max5' || mode === 'max20') return mode;
+  return 'api';
 }
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -47,12 +49,17 @@ export function activate(context: vscode.ExtensionContext): void {
   // 60-second polling interval
   const interval = setInterval(refresh, 60_000);
 
-  // Node.js fs.watch on ~/.claude/projects/ for real-time updates
+  // Node.js fs.watch on ~/.claude/projects/ for real-time updates (debounced 500ms)
   const projectsDir = path.join(os.homedir(), '.claude', 'projects');
   let watcher: fs.FSWatcher | undefined;
-  if (fs.existsSync(projectsDir)) {
-    watcher = fs.watch(projectsDir, { recursive: true }, () => refresh());
-  }
+  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    watcher = fs.watch(projectsDir, { recursive: true }, (_, filename) => {
+      if (!filename?.endsWith('.jsonl')) return;
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(refresh, 500);
+    });
+  } catch { /* directory doesn't exist yet */ }
 
   // Dispose all on deactivation
   context.subscriptions.push(

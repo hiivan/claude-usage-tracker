@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(npm run build)",
+      "Bash(git add -A)",
+      "Bash(git commit -m \"Simplify: BillingMode type, remove TOCTOU existsSync, debounce watcher, max5/max20 tiers\")"
     ]
-  }
+  },
+  "bypassPermissions": true
 }

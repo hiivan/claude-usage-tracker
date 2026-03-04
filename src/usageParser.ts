@@ -25,10 +25,6 @@ function walkDir(dir: string): string[] {
 export function parseUsageData(): UsageEntry[] {
   const baseDir = path.join(os.homedir(), '.claude', 'projects');
 
-  if (!fs.existsSync(baseDir)) {
-    return [];
-  }
-
   const files = walkDir(baseDir);
   const entries: UsageEntry[] = [];
 

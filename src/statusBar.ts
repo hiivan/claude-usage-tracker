@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { UsageEntry } from './types';
+import { UsageEntry, BillingMode } from './types';
 import { calculateCost, formatCost, formatTokens } from './costCalculator';
 
 export class UsageStatusBar {
@@ -8,10 +8,9 @@ export class UsageStatusBar {
   constructor() {
     this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
     this.statusBarItem.command = 'claudeUsage.openDashboard';
-    this.statusBarItem.tooltip = 'Claude Usage Today — Click to open dashboard';
   }
 
-  update(entries: UsageEntry[], billingMode: 'api' | 'pro' | 'max' = 'api'): void {
+  update(entries: UsageEntry[], billingMode: BillingMode = 'api'): void {
     const today = new Date().toDateString();
     const todayEntries = entries.filter(e => new Date(e.timestamp).toDateString() === today);
 
@@ -23,9 +22,10 @@ export class UsageStatusBar {
     if (billingMode === 'pro') {
       this.statusBarItem.text = `$(graph) Claude Pro · ${formatTokens(totalTokens)} tokens`;
       this.statusBarItem.tooltip = 'Claude Pro ($20/mo) — Click to open dashboard';
-    } else if (billingMode === 'max') {
-      this.statusBarItem.text = `$(graph) Claude Max · ${formatTokens(totalTokens)} tokens`;
-      this.statusBarItem.tooltip = 'Claude Max ($100/mo) — Click to open dashboard';
+    } else if (billingMode === 'max5' || billingMode === 'max20') {
+      const label = billingMode === 'max5' ? 'Max ($100/mo)' : 'Max ($400/mo)';
+      this.statusBarItem.text = `$(graph) Claude ${label} · ${formatTokens(totalTokens)} tokens`;
+      this.statusBarItem.tooltip = `Claude ${label} — Click to open dashboard`;
     } else {
       const totalCost = todayEntries.reduce((sum, e) => sum + calculateCost(e), 0);
       this.statusBarItem.text = `$(graph) Claude: ${formatCost(totalCost)} · ${formatTokens(totalTokens)} tokens`;

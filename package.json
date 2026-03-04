@@ -20,14 +20,15 @@
       "properties": {
         "claudeUsage.billingMode": {
           "type": "string",
-          "enum": ["api", "pro", "max"],
+          "enum": ["api", "pro", "max5", "max20"],
           "enumDescriptions": [
             "Pay-per-token via API key — shows estimated USD cost",
-            "Claude Pro subscription ($20/mo) — shows token usage only, no cost estimates",
-            "Claude Max subscription ($100/mo) — shows token usage only, no cost estimates"
+            "Claude Pro ($20/mo) — shows 5-hour window usage vs ~19k token limit",
+            "Claude Max ($100/mo) — shows 5-hour window usage vs ~88k token limit",
+            "Claude Max ($400/mo) — shows 5-hour window usage vs ~220k token limit"
           ],
           "default": "api",
-          "description": "Your Claude billing mode. Use 'pro' or 'max' if you are on a subscription plan rather than paying per token."
+          "description": "Your Claude billing mode. Set to your subscription tier to see 5-hour window usage against community-discovered rate limits."
         }
       }
     }
