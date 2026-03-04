@@ -2,7 +2,7 @@
   "verbose": false,
   "rounds": 1,
   "limit": 20,
-  "base": "main",
+  "base": "master",
   "provider": "github",
   "asynchronous": false
 }

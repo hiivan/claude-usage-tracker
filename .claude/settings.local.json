@@ -4,7 +4,9 @@
       "WebFetch(domain:github.com)",
       "Bash(npm run build)",
       "Bash(git add -A)",
-      "Bash(git commit -m \"Simplify: BillingMode type, remove TOCTOU existsSync, debounce watcher, max5/max20 tiers\")"
+      "Bash(git commit -m \"Simplify: BillingMode type, remove TOCTOU existsSync, debounce watcher, max5/max20 tiers\")",
+      "Bash(ralph init usage-window-bar)",
+      "Bash(git commit -m \"Add usage-window-bar Ralph spec\")"
     ]
   },
   "bypassPermissions": true
